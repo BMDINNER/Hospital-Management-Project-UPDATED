@@ -1,46 +1,82 @@
 # Hospital Management System
 
-An upgraded version of Hospital Management System Project, that is a part of the centralized authentication service system with logreg(my auth proxy npm pacakge), full-stack hospital management system with patient profiles, appointment booking, and prescription management. 
+A full-featured hospital management application with patient registration, appointment booking, prescription generation, and secure authentication.
 
 ## Features
 
-- Patient registration and authentication
-- Profile management with personal and medical information
-- Appointment booking with hospital, department, doctor, and time slot selection
-- Automatic appointment expiration and prescription generation
-- Previous treatments and prescription history
-- Dark/light mode support
+### Authentication
+- User registration with patient profile creation
+- Secure login with JWT tokens
+- Forgot password with email reset link
+- Reset password functionality
+- Change email with password confirmation
+- Change password with current password verification
+- Session management with token blacklisting
+
+### Patient Features
+- Patient profile management
+- View and edit personal information
+- View and edit medical information
+- Active appointments dashboard
+- Previous treatments history
+- Prescription history with medication details
+
+### Appointment System
+- Book appointments with hospitals and doctors
+- Select from available time slots
+- Automatic appointment expiration (15 seconds for testing)
+- Automatic prescription generation on appointment completion
+
+### Prescription System
+- Automatic prescription generation with 1-3 medications
+- Detailed medication information (dosage, frequency, duration)
+- Diagnosis and doctor notes
+- Follow-up date tracking
+
+### Security
+- JWT token authentication
+- API key and project ID hidden from browser
+- Secure communication through backend proxy
+- Token blacklisting on logout and tab close
+- Content Security Policy (CSP) protection(inside the auth-service)
 
 ## Tech Stack
 
-### Backend
-- Node.js with Express
-- MongoDB with Mongoose
-- JWT authentication via external auth service
-
 ### Frontend
 - React 18
-- Tailwind CSS
 - Vite
+- Tailwind CSS
 - React Router
+- React Hot Toast
+- FontAwesome Icons
+- @bmdinner/logreg (Authentication package)
 
-### Authentication
-- Uses `@bmdinner/logreg` npm package
-- Centralized authentication service
+### Backend
+- Node.js
+- Express
+- MongoDB Atlas
+- Mongoose
+- Axios
+
+### Auth Service
+- Node.js
+- Express
+- PostgreSQL
+- Prisma ORM
+- JWT
+
+### Infrastructure
+- Docker
+- Docker Compose
+- Nginx (reverse proxy)
 
 ## Prerequisites
 
-- Node.js 18+
-- MongoDB
-- Auth Service running on port 3001
+- Docker and Docker Compose installed
+- Node.js 18+ (for local development)
+- MongoDB Atlas account (or local MongoDB)
+- PostgreSQL (for auth-service)
 
-## Installation
-
-### Backend
-
-```bash
-cd backend
-npm install
-npm run seed
-npm run seed-medicines
-npm start
+```env
+VITE_PROJECT_ID=your-project-id
+VITE_API_KEY=your-api-key
