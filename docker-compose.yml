@@ -18,7 +18,7 @@ services:
       dockerfile: Dockerfile
       args:
         - VITE_API_URL=/api
-        - VITE_AUTH_URL=/api/auth
+        - VITE_AUTH_URL=/auth
     container_name: hospital_frontend
     ports:
       - "3005:3000"

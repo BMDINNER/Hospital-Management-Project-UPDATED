@@ -8,8 +8,6 @@ import PatientProfile from './pages/patient';
 import Appointment from './components/appointment/Appointment';
 import LoadingOverlay from './components/common/LoadingOverlay';
 import './index.css';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
 
 function AppContent() {
   const { isAuthenticated, loading, user } = useAuth();
@@ -48,20 +46,15 @@ function AppContent() {
           path="/"
           element={<Navigate to={isAuthenticated ? "/patient" : "/login"} />}
         />
-        <Route
-          path="/forgot-password"
-          element={isAuthenticated ? <Navigate to="/patient" /> : <ForgotPassword />}
-        />
-        <Route
-          path="/reset-password"
-          element={isAuthenticated ? <Navigate to="/patient" /> : <ResetPassword />}
-        />
       </Routes>
     </div>
   );
 }
 
 function App() {
+  const apiKey = import.meta.env.VITE_API_KEY || '';
+  const projectId = import.meta.env.VITE_PROJECT_ID || '';
+
   return (
     <ThemeProvider>
       <AuthProvider
@@ -73,8 +66,6 @@ function App() {
         logoutEndpoint="/logout"
         refreshEndpoint="/refresh"
         verifyEndpoint="/verify"
-        forgotPasswordEndpoint="/forgot-password"
-        resetPasswordEndpoint="/reset-password"
       >
         <AppContent />
       </AuthProvider>

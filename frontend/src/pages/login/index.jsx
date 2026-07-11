@@ -14,6 +14,7 @@ import { FaExclamationTriangle } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 
 const API_URL = '/api';
+const AUTH_URL = import.meta.env.VITE_AUTH_URL || '/auth';
 
 const HospitalLogin = () => {
   const { login, register } = useAuth();
@@ -178,6 +179,10 @@ const HospitalLogin = () => {
     });
   };
 
+  const handleForgotPassword = () => {
+    window.location.href = `${AUTH_URL}/forgot-password`;
+  };
+
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-cyan-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
       <ThemeToggle />
@@ -211,12 +216,13 @@ const HospitalLogin = () => {
           )}
 
           <div className="flex items-center justify-end">
-            <Link
-              to="/forgot-password"
+            <button
+              type="button"
+              onClick={handleForgotPassword}
               className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
             >
               Forgot password?
-            </Link>
+            </button>
           </div>
 
           <div className="pt-4">
