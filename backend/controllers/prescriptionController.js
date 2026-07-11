@@ -1,0 +1,152 @@
+import Prescription from '../model/Prescription.js';
+import User from '../model/Users.js';
+import Medicine from '../model/Medicine.js';
+
+const getPrescriptions = async (req, res) => {
+  try {
+    const prescriptions = await Prescription.find({ userId: req.userId })
+      .sort({ prescribedAt: -1 });
+    
+    res.json({
+      success: true,
+      prescriptions
+    });
+  } catch (err) {
+    console.error('Get prescriptions error:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+};
+
+const generatePrescriptionForAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.params;
+    
+    const user = await User.findById(req.userId);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+    
+    const appointment = user.appointments.id(appointmentId);
+    
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Appointment not found'
+      });
+    }
+    
+    if (appointment.status !== 'confirmed' && appointment.status !== 'completed') {
+      return res.status(400).json({
+        success: false,
+        message: 'Prescription can only be generated for confirmed or completed appointments'
+      });
+    }
+    
+    const existingPrescription = await Prescription.findOne({ appointmentId });
+    
+    if (existingPrescription) {
+      return res.status(400).json({
+        success: false,
+        message: 'Prescription already exists for this appointment'
+      });
+    }
+    
+    const diagnoses = {
+      'Cardiology': ['Hypertension', 'Coronary artery disease', 'Arrhythmia', 'Heart failure'],
+      'Dermatology': ['Acne vulgaris', 'Eczema', 'Psoriasis', 'Contact dermatitis'],
+      'Neurology': ['Migraine', 'Tension headache', 'Neuropathy', 'Insomnia'],
+      'Orthopedics': ['Osteoarthritis', 'Back pain', 'Sprain', 'Tendinitis'],
+      'Pediatrics': ['Upper respiratory infection', 'Ear infection', 'Viral illness', 'Allergic rhinitis'],
+      'Oncology': ['Follow-up care', 'Symptom management', 'Treatment monitoring'],
+      'Gynecology': ['Menstrual disorder', 'UTI', 'Vaginal infection', 'Contraception management'],
+      'Psychiatry': ['Anxiety disorder', 'Depression', 'Insomnia', 'Stress management']
+    };
+    
+    const deptDiagnoses = diagnoses[appointment.department] || ['General medical condition'];
+    const diagnosis = deptDiagnoses[Math.floor(Math.random() * deptDiagnoses.length)];
+    
+    const medicineCount = Math.floor(Math.random() * 3) + 1;
+    const allMedicines = await Medicine.find({ isActive: true });
+    
+    if (allMedicines.length === 0) {
+      return res.status(500).json({
+        success: false,
+        message: 'No medicines available in database'
+      });
+    }
+    
+    const shuffledMedicines = [...allMedicines].sort(() => 0.5 - Math.random());
+    const selectedMedicines = shuffledMedicines.slice(0, medicineCount);
+    
+    const frequencies = ['once daily', 'twice daily', 'three times daily', 'four times daily', 'as needed'];
+    const durations = ['7 days', '10 days', '14 days', '30 days', 'As needed'];
+    
+    const medications = selectedMedicines.map(med => ({
+      name: med.name,
+      genericName: med.genericName,
+      dosage: med.strengths ? med.strengths[Math.floor(Math.random() * med.strengths.length)] + ' ' + frequencies[Math.floor(Math.random() * frequencies.length)] : 'As directed',
+      frequency: frequencies[Math.floor(Math.random() * frequencies.length)],
+      duration: durations[Math.floor(Math.random() * durations.length)],
+      category: med.category,
+      instructions: 'Take as prescribed by your physician'
+    }));
+    
+    const instructionOptions = [
+      'Complete the full course of medication',
+      'Return if symptoms worsen',
+      'Avoid alcohol while taking this medication',
+      'May cause drowsiness - avoid driving',
+      'Take with plenty of water',
+      'Store at room temperature away from moisture',
+      'Follow up if no improvement in 3 days'
+    ];
+    
+    const prescriptionData = {
+      appointmentId: appointmentId,
+      userId: req.userId,
+      hospitalName: appointment.hospitalName,
+      department: appointment.department,
+      doctorName: appointment.doctorName,
+      appointmentDate: appointment.appointmentDate,
+      appointmentTime: appointment.appointmentTime,
+      diagnosis: diagnosis,
+      medications: medications,
+      instructions: instructionOptions[Math.floor(Math.random() * instructionOptions.length)],
+      followUpDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+      prescribedAt: new Date(),
+      status: 'active'
+    };
+    
+    const prescription = new Prescription(prescriptionData);
+    await prescription.save();
+    
+    appointment.prescriptionId = prescription._id;
+    appointment.status = 'completed';
+    await user.save();
+    
+    res.json({
+      success: true,
+      message: 'Prescription generated successfully',
+      prescription
+    });
+    
+  } catch (error) {
+    console.error('Error generating prescription:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+};
+
+export {
+  getPrescriptions,
+  generatePrescriptionForAppointment
+};
