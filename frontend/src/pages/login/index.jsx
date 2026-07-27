@@ -179,10 +179,6 @@ const HospitalLogin = () => {
     });
   };
 
-  const handleForgotPassword = () => {
-    window.location.href = `${AUTH_URL}/forgot-password`;
-  };
-
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-cyan-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
       <ThemeToggle />

@@ -207,35 +207,3 @@ export const forgotPassword = async (req, res) => {
     res.status(status).json({ success: false, message });
   }
 };
-
-export const resetPassword = async (req, res) => {
-  try {
-    const { token, newPassword } = req.body;
-    
-    if (!token || !newPassword) {
-      return res.status(400).json({
-        success: false,
-        message: 'Token and new password are required'
-      });
-    }
-
-    if (newPassword.length < 6) {
-      return res.status(400).json({
-        success: false,
-        message: 'New password must be at least 6 characters'
-      });
-    }
-
-    const response = await axios.post(
-      `${AUTH_SERVICE_URL}/auth/reset-password`,
-      { token, newPassword },
-      { headers: getAuthHeaders() }
-    );
-    
-    res.json(response.data);
-  } catch (error) {
-    const status = error.response?.status || 500;
-    const message = error.response?.data?.message || error.message;
-    res.status(status).json({ success: false, message });
-  }
-};
