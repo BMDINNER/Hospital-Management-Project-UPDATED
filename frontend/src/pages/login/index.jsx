@@ -180,60 +180,72 @@ const HospitalLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 to-cyan-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <ThemeToggle />
-      
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-4xl">
-        <LoginHeader isLogin={isLogin} />
+    <div className={`min-h-screen ${isDarkMode ? 'dark' : ''}`}>
+      <div className="min-h-screen bg-linear-to-br from-blue-50 to-cyan-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4 relative">
+        <ThemeToggle />
+        
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-4xl">
+          <LoginHeader isLogin={isLogin} />
 
-        {errors.submit && (
-          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <div className="flex items-center gap-3">
-              <FaExclamationTriangle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" />
-              <p className="text-red-600 dark:text-red-400 text-sm">{errors.submit}</p>
+          {errors.submit && (
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <div className="flex items-center gap-3">
+                <FaExclamationTriangle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" />
+                <p className="text-red-600 dark:text-red-400 text-sm">{errors.submit}</p>
+              </div>
             </div>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {isLogin ? (
-            <LoginFormFields 
-              formData={formData} 
-              handleInputChange={handleInputChange} 
-              loading={loading} 
-            />
-          ) : (
-            <RegisterFormFields 
-              formData={formData} 
-              handleInputChange={handleInputChange} 
-              errors={errors}
-              loading={loading} 
-            />
           )}
 
-          <div className="pt-4">
-            <Button
-              type="submit"
-              disabled={loading}
-              loading={loading}
-              variant="primary"
-              size="large"
-              className="w-full flex items-center justify-center gap-2"
-            >
-              {isLogin ? 'Sign In' : 'Create Account'}
-            </Button>
-          </div>
-        </form>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {isLogin ? (
+              <LoginFormFields 
+                formData={formData} 
+                handleInputChange={handleInputChange} 
+                loading={loading} 
+              />
+            ) : (
+              <RegisterFormFields 
+                formData={formData} 
+                handleInputChange={handleInputChange} 
+                errors={errors}
+                loading={loading} 
+              />
+            )}
 
-        <FormToggle isLogin={isLogin} onToggle={toggleMode} />
-        <FormFooter />
+            <div className="flex items-center justify-end">
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+              >
+                Forgot password?
+              </button>
+            </div>
 
-        {loading && (
-          <LoadingOverlay 
-            message={isLogin ? "Signing in..." : "Creating account..."} 
-            show={loading} 
-          />
-        )}
+            <div className="pt-4">
+              <Button
+                type="submit"
+                disabled={loading}
+                loading={loading}
+                variant="primary"
+                size="large"
+                className="w-full flex items-center justify-center gap-2"
+              >
+                {isLogin ? 'Sign In' : 'Create Account'}
+              </Button>
+            </div>
+          </form>
+
+          <FormToggle isLogin={isLogin} onToggle={toggleMode} />
+          <FormFooter />
+
+          {loading && (
+            <LoadingOverlay 
+              message={isLogin ? "Signing in..." : "Creating account..."} 
+              show={loading} 
+            />
+          )}
+        </div>
       </div>
     </div>
   );
