@@ -83,6 +83,38 @@ const generatePrescription = async (appointment, userId) => {
   }
 };
 
+const cancelAppointment = async (userId, appointmentId) => {
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const appointmentIndex = user.appointments.findIndex(
+      app => app._id.toString() === appointmentId
+    );
+
+    if (appointmentIndex === -1) {
+      throw new Error('Appointment not found');
+    }
+
+    const appointment = user.appointments[appointmentIndex];
+    if (appointment.status === 'completed') {
+      throw new Error('Cannot cancel a completed appointment');
+    }
+    if (appointment.status === 'cancelled') {
+      throw new Error('Appointment is already cancelled');
+    }
+
+    user.appointments[appointmentIndex].status = 'cancelled';
+    await user.save();
+    return user;
+  } catch (error) {
+    console.error('Error cancelling appointment:', error);
+    throw error;
+  }
+};
+
 const expireAppointments = async () => {
   try {
     const users = await User.find({
@@ -96,19 +128,24 @@ const expireAppointments = async () => {
       
       for (const appointment of user.appointments) {
         if (appointment.status === 'confirmed') {
-          appointment.status = 'completed';
+          const appointmentDate = new Date(appointment.appointmentDate);
+          const now = new Date();
           
-          try {
-            const prescription = await generatePrescription(appointment, user._id);
-            if (prescription) {
-              appointment.prescriptionId = prescription._id;
+          if (appointmentDate < now) {
+            appointment.status = 'completed';
+            
+            try {
+              const prescription = await generatePrescription(appointment, user._id);
+              if (prescription) {
+                appointment.prescriptionId = prescription._id;
+              }
+            } catch (error) {
+              console.error(`Failed to generate prescription for appointment ${appointment._id}:`, error);
             }
-          } catch (error) {
-            console.error(`Failed to generate prescription for appointment ${appointment._id}:`, error);
+            
+            shouldSave = true;
+            expiredCount++;
           }
-          
-          shouldSave = true;
-          expiredCount++;
         }
       }
       
@@ -124,4 +161,52 @@ const expireAppointments = async () => {
   }
 };
 
-export { expireAppointments, generatePrescription };
+const completeAppointment = async (userId, appointmentId) => {
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const appointmentIndex = user.appointments.findIndex(
+      app => app._id.toString() === appointmentId
+    );
+
+    if (appointmentIndex === -1) {
+      throw new Error('Appointment not found');
+    }
+
+    const appointment = user.appointments[appointmentIndex];
+
+    if (appointment.status !== 'confirmed') {
+      throw new Error('Only confirmed appointments can be completed');
+    }
+
+    const appointmentDate = new Date(appointment.appointmentDate);
+    const now = new Date();
+    
+    if (appointmentDate > now) {
+      throw new Error('Cannot complete a future appointment');
+    }
+
+    appointment.status = 'completed';
+    
+    try {
+      const prescription = await generatePrescription(appointment, user._id);
+      if (prescription) {
+        appointment.prescriptionId = prescription._id;
+      }
+    } catch (error) {
+      console.error(`Failed to generate prescription for appointment ${appointment._id}:`, error);
+    }
+    
+    await user.save();
+    
+    return user;
+  } catch (error) {
+    console.error('Error completing appointment:', error);
+    throw error;
+  }
+};
+
+export { expireAppointments, generatePrescription, cancelAppointment, completeAppointment };
