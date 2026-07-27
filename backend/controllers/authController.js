@@ -183,27 +183,3 @@ export const changePassword = async (req, res) => {
   }
 };
 
-export const forgotPassword = async (req, res) => {
-  try {
-    const { email } = req.body;
-    
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email is required'
-      });
-    }
-
-    const response = await axios.post(
-      `${AUTH_SERVICE_URL}/auth/forgot-password`,
-      { email },
-      { headers: getAuthHeaders() }
-    );
-    
-    res.json(response.data);
-  } catch (error) {
-    const status = error.response?.status || 500;
-    const message = error.response?.data?.message || error.message;
-    res.status(status).json({ success: false, message });
-  }
-};

@@ -180,7 +180,7 @@ const HospitalLogin = () => {
   };
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? 'dark' : ''}`}>
+    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900`}>
       <div className="min-h-screen bg-linear-to-br from-blue-50 to-cyan-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4 relative">
         <ThemeToggle />
         
@@ -211,16 +211,6 @@ const HospitalLogin = () => {
                 loading={loading} 
               />
             )}
-
-            <div className="flex items-center justify-end">
-              <button
-                type="button"
-                onClick={handleForgotPassword}
-                className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
-              >
-                Forgot password?
-              </button>
-            </div>
 
             <div className="pt-4">
               <Button
