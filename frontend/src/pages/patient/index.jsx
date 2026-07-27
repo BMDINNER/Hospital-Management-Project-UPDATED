@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@bmdinner/logreg';
+import { useTheme } from '../../contexts/ThemeContext';
+import ThemeToggle from '../../components/common/ThemeToggle';
 import VerticalNavigation from './components/VerticalNavigation';
 import ProfileHeader from './components/ProfileHeader';
 import PersonalInfoForm from './components/PersonalInfoForm';
@@ -26,6 +28,7 @@ const API_URL = '/api';
 const PatientProfile = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { isDarkMode } = useTheme();
   
   const [currentView, setCurrentView] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
@@ -645,7 +648,8 @@ const PatientProfile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900`}>
+      <ThemeToggle />
       <div className="max-w-7xl mx-auto px-4 py-8">
         <ProfileHeader 
           isEditing={isEditing}
