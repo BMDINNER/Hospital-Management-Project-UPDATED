@@ -118,7 +118,6 @@ const cancelAppointment = async (userId, appointmentId) => {
 
 const expireAppointments = async () => {
   try {
-    // Find all users with confirmed appointments
     const users = await User.find({
       'appointments.status': 'confirmed'
     });
@@ -133,13 +132,14 @@ const expireAppointments = async () => {
         if (appointment.status === 'confirmed') {
           foundAppointments++;
           
-          const appointmentDate = new Date(appointment.appointmentDate);
+          const createdAt = new Date(appointment.createdAt);
           const now = new Date();
+          const timeDiff = (now - createdAt) / 1000; 
           
-          const timeDiff = (now - appointmentDate) / 1000; 
+          console.log(`Appointment ${appointment._id}: created at ${createdAt}, now ${now}, diff ${timeDiff}s`);
           
-          if (appointmentDate < now || timeDiff > 15) {
-            console.log(`Expiring appointment: ${appointment._id}, booked at: ${appointmentDate}, now: ${now}, diff: ${timeDiff}s`);
+          if (timeDiff > 15) {
+            console.log(`Expiring appointment: ${appointment._id}, created at: ${createdAt}, diff: ${timeDiff}s`);
             
             appointment.status = 'completed';
             
@@ -161,7 +161,7 @@ const expireAppointments = async () => {
       
       if (shouldSave) {
         await user.save();
-        console.log(`Saved user ${user._id} with ${expiredCount} expired appointments`);
+        console.log(`Saved user ${user._id} with expired appointments`);
       }
     }
     
