@@ -7,7 +7,6 @@ import userRoutes from './routes/userRoutes.js';
 import hospitalRoutes from './routes/hospitalRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import { expireAppointments } from './services/appointmentService.js';
-import './cron/expireAppointments.js';
 
 dotenv.config();
 
