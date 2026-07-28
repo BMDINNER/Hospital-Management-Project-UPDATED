@@ -1,4 +1,4 @@
-import { expireAppointments } from '../services/appointmentService.js';
+import { expireAppointments } from '../services/appointmentService';
 
 const runExpireAppointments = async () => {
   try {
