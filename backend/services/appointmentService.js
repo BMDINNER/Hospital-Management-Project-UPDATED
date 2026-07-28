@@ -108,6 +108,7 @@ const cancelAppointment = async (userId, appointmentId) => {
 
     user.appointments[appointmentIndex].status = 'cancelled';
     await user.save();
+
     return user;
   } catch (error) {
     console.error('Error cancelling appointment:', error);
@@ -117,27 +118,36 @@ const cancelAppointment = async (userId, appointmentId) => {
 
 const expireAppointments = async () => {
   try {
+    // Find all users with confirmed appointments
     const users = await User.find({
       'appointments.status': 'confirmed'
     });
     
     let expiredCount = 0;
+    let foundAppointments = 0;
     
     for (const user of users) {
       let shouldSave = false;
       
       for (const appointment of user.appointments) {
         if (appointment.status === 'confirmed') {
+          foundAppointments++;
+          
           const appointmentDate = new Date(appointment.appointmentDate);
           const now = new Date();
           
-          if (appointmentDate < now) {
+          const timeDiff = (now - appointmentDate) / 1000; 
+          
+          if (appointmentDate < now || timeDiff > 15) {
+            console.log(`Expiring appointment: ${appointment._id}, booked at: ${appointmentDate}, now: ${now}, diff: ${timeDiff}s`);
+            
             appointment.status = 'completed';
             
             try {
               const prescription = await generatePrescription(appointment, user._id);
               if (prescription) {
                 appointment.prescriptionId = prescription._id;
+                console.log(`Prescription generated for appointment ${appointment._id}`);
               }
             } catch (error) {
               console.error(`Failed to generate prescription for appointment ${appointment._id}:`, error);
@@ -151,9 +161,11 @@ const expireAppointments = async () => {
       
       if (shouldSave) {
         await user.save();
+        console.log(`Saved user ${user._id} with ${expiredCount} expired appointments`);
       }
     }
     
+    console.log(`Expire appointments completed: ${expiredCount} expired out of ${foundAppointments} found`);
     return expiredCount;
   } catch (error) {
     console.error('Error in expireAppointments:', error);
@@ -177,16 +189,9 @@ const completeAppointment = async (userId, appointmentId) => {
     }
 
     const appointment = user.appointments[appointmentIndex];
-
+    
     if (appointment.status !== 'confirmed') {
       throw new Error('Only confirmed appointments can be completed');
-    }
-
-    const appointmentDate = new Date(appointment.appointmentDate);
-    const now = new Date();
-    
-    if (appointmentDate > now) {
-      throw new Error('Cannot complete a future appointment');
     }
 
     appointment.status = 'completed';
