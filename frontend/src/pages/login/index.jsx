@@ -17,7 +17,7 @@ const API_URL = '/api';
 const AUTH_URL = import.meta.env.VITE_AUTH_URL || '/auth';
 
 const HospitalLogin = () => {
-  const { login, register } = useAuth();
+  const { login, register, logout } = useAuth();
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
   
@@ -141,6 +141,9 @@ const HospitalLogin = () => {
 
         toast.success('Registration successful! Please login.');
         
+        if(logout) {
+          await logout();
+        }
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('userData');
