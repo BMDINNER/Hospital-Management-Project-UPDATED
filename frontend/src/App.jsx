@@ -52,8 +52,6 @@ function AppContent() {
 }
 
 function App() {
-  const apiKey = import.meta.env.VITE_API_KEY || '';
-  const projectId = import.meta.env.VITE_PROJECT_ID || '';
 
   return (
     <ThemeProvider>
